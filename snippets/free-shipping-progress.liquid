@@ -1,0 +1,136 @@
+{%- doc -%}
+  Displays the cart's progress toward the configured free-shipping threshold.
+{%- enddoc -%}
+
+{%- liquid
+  assign threshold = settings.free_shipping_threshold | default: 150 | times: 100
+  assign remaining = threshold | minus: cart.total_price
+  assign progress = cart.total_price | times: 100 | divided_by: threshold | at_most: 100
+-%}
+
+<free-shipping-progress
+  class="free-shipping-progress"
+  data-threshold="{{ threshold }}"
+  data-total="{{ cart.total_price }}"
+  data-money-format="{{ shop.money_with_currency_format | escape }}"
+  data-currency="{{ cart.currency.iso_code | default: shop.currency }}"
+  data-unlocked="{% if remaining <= 0 %}true{% else %}false{% endif %}"
+>
+  <div class="free-shipping-progress__heading">
+    <span class="free-shipping-progress__icon" aria-hidden="true">
+      {{- 'icon-cart.svg' | inline_asset_content -}}
+    </span>
+    <div>
+      <p class="free-shipping-progress__eyebrow">Free shipping</p>
+      <p class="free-shipping-progress__message" data-free-shipping-message role="status" aria-live="polite">
+        {%- if remaining > 0 -%}
+          Add <strong>{{ remaining | money_with_currency }}</strong> more for free shipping
+        {%- else -%}
+          <strong>Free shipping unlocked</strong>
+        {%- endif -%}
+      </p>
+    </div>
+  </div>
+
+  <div
+    class="free-shipping-progress__track"
+    role="progressbar"
+    aria-label="Progress toward free shipping"
+    aria-valuemin="0"
+    aria-valuemax="{{ threshold }}"
+    aria-valuenow="{{ cart.total_price | at_most: threshold }}"
+    data-free-shipping-track
+  >
+    <span class="free-shipping-progress__fill" data-free-shipping-fill style="width: {{ progress }}%"></span>
+  </div>
+  <p class="free-shipping-progress__threshold">Free shipping on orders of {{ threshold | money_with_currency }} or more</p>
+</free-shipping-progress>
+
+{% stylesheet %}
+  free-shipping-progress {
+    --free-shipping-accent: #0f766e;
+    --free-shipping-accent-soft: #e7f5f1;
+    --free-shipping-highlight: #f59e0b;
+
+    display: block;
+    width: 100%;
+    padding: var(--padding-lg);
+    border: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-10-25));
+    border-radius: min(8px, var(--style-border-radius, 8px));
+    background: var(--free-shipping-accent-soft);
+  }
+
+  .free-shipping-progress__heading {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+  }
+
+  .free-shipping-progress__icon {
+    display: grid;
+    flex: 0 0 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    border-radius: 50%;
+    color: white;
+    background: var(--free-shipping-accent);
+  }
+
+  .free-shipping-progress__icon svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .free-shipping-progress__eyebrow,
+  .free-shipping-progress__message,
+  .free-shipping-progress__threshold {
+    margin: 0;
+  }
+
+  .free-shipping-progress__eyebrow {
+    color: var(--free-shipping-accent);
+    font-size: var(--font-size--2xs);
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .free-shipping-progress__message {
+    margin-top: 0.2rem;
+    color: var(--color-foreground);
+    font-size: var(--font-size--sm);
+    line-height: 1.35;
+  }
+
+  .free-shipping-progress__message strong {
+    font-weight: 700;
+  }
+
+  .free-shipping-progress__track {
+    height: 0.5rem;
+    margin-top: var(--margin-md);
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));
+  }
+
+  .free-shipping-progress__fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--free-shipping-accent);
+    transition: width 220ms ease;
+  }
+
+  free-shipping-progress[data-unlocked='true'] .free-shipping-progress__fill {
+    background: var(--free-shipping-highlight);
+  }
+
+  .free-shipping-progress__threshold {
+    margin-top: var(--margin-xs);
+    color: var(--color-foreground-subdued);
+    font-size: var(--font-size--2xs);
+    line-height: 1.35;
+  }
+{% endstylesheet %}

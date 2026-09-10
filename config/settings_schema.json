@@ -1479,6 +1479,15 @@
         "default": "page"
       },
       {
+        "type": "range",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping threshold (Rs.)",
+        "min": 50,
+        "max": 5000,
+        "step": 50,
+        "default": 150
+      },
+      {
         "type": "select",
         "id": "product_title_case",
         "label": "t:settings.product_title_case",
