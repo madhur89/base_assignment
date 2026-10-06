@@ -1,0 +1,307 @@
+{% schema %}
+{
+  "name": "Nisho Product Carousel",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Nishotsav - Navratri Edit"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "product_limit",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "label": "Maximum products to show",
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Label",
+      "default": "Discover More"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link (Overrides Collection Link)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show Badges (Sale/Sold Out)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "Show second image on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "emphasize_sale",
+      "label": "Emphasize Sale (Red Prices & % Off)",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Nisho Product Carousel"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .npc-section-{{ section.id }} {
+    padding: 60px 40px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  @media screen and (max-width: 768px) {
+    .npc-section-{{ section.id }} {
+      padding: 40px 20px;
+    }
+  }
+
+  .npc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .npc-heading {
+    font-size: 28px;
+    font-weight: 500;
+    color: #121212;
+    margin: 0;
+    font-family: 'SF Pro Display', -apple-system, sans-serif;
+  }
+
+  .npc-discover-btn {
+    background: #ffffff;
+    color: #121212;
+    text-decoration: none;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #eaeaea;
+    transition: all 0.3s ease;
+  }
+
+  .npc-discover-btn:hover {
+    background: #121212;
+    color: #ffffff;
+    border-color: #121212;
+  }
+
+  /* Carousel CSS Scroll Snap */
+  .npc-carousel-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .npc-carousel {
+    display: flex;
+    gap: 15px; /* Very small horizontal gaps as requested */
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    padding-bottom: 20px;
+    scroll-behavior: smooth;
+  }
+
+  .npc-carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .npc-slide {
+    flex: 0 0 calc(25% - 11.25px); /* Exactly 4 cards on desktop */
+    scroll-snap-align: start;
+    min-width: 0; /* Prevent flex blowout */
+  }
+
+  @media screen and (max-width: 1024px) {
+    .npc-slide {
+      flex: 0 0 calc(33.333% - 10px); /* 3 on tablet */
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .npc-slide {
+      flex: 0 0 calc(50% - 7.5px); /* 2 on mobile as requested */
+    }
+    .npc-heading {
+      font-size: 22px;
+    }
+  }
+
+  /* Navigation Arrows */
+  .npc-nav-btn {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background: #ffffff;
+    border: 1px solid #eaeaea;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+  }
+
+  .npc-nav-btn:hover {
+    background: #121212;
+    color: #ffffff;
+  }
+
+  .npc-nav-prev {
+    left: -20px;
+  }
+
+  .npc-nav-next {
+    right: -20px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .npc-nav-btn {
+      display: none; /* Hide arrows on mobile, rely on swipe */
+    }
+  }
+</style>
+
+<div class="npc-section-{{ section.id }}">
+  <div class="npc-header">
+    <h2 class="npc-heading">{{ section.settings.heading }}</h2>
+    
+    {%- if section.settings.btn_text != blank -%}
+      {%- assign link = section.settings.btn_link | default: section.settings.collection.url -%}
+      <a href="{{ link | default: '#' }}" class="npc-discover-btn">{{ section.settings.btn_text }}</a>
+    {%- endif -%}
+  </div>
+
+  <div class="npc-carousel-wrapper">
+    <!-- Prev Arrow -->
+    <button class="npc-nav-btn npc-nav-prev" id="npc-prev-{{ section.id }}" aria-label="Previous">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+
+    <div class="npc-carousel" id="npc-carousel-{{ section.id }}">
+      {%- if section.settings.collection != blank and section.settings.collection.products_count > 0 -%}
+        {%- for product in section.settings.collection.products limit: section.settings.product_limit -%}
+          <div class="npc-slide">
+            {% render 'nishorama-product-card', 
+               product: product, 
+               show_badge: section.settings.show_badge, 
+               show_secondary_image: section.settings.show_secondary_image,
+               show_quick_add: true,
+               emphasize_sale: section.settings.emphasize_sale 
+            %}
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        <!-- Placeholder for Theme Editor -->
+        {%- for i in (1..4) -%}
+          <div class="npc-slide">
+            <div style="background: #f4f4f4; border-radius: 12px; padding: 20px; text-align: center; height: 350px; display: flex; align-items: center; justify-content: center;">
+              Select a collection
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    <!-- Next Arrow -->
+    <button class="npc-nav-btn npc-nav-next" id="npc-next-{{ section.id }}" aria-label="Next">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.getElementById('npc-carousel-{{ section.id }}');
+    const prevBtn = document.getElementById('npc-prev-{{ section.id }}');
+    const nextBtn = document.getElementById('npc-next-{{ section.id }}');
+
+    if (!carousel) return;
+
+    // Calculate scroll amount based on one slide width + gap
+    function getScrollAmount() {
+      const slide = carousel.querySelector('.npc-slide');
+      if (slide) {
+        return slide.offsetWidth + 15; // 15px gap
+      }
+      return 300;
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        carousel.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        carousel.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+      });
+    }
+
+    // Optional: Mouse Drag to Scroll for Desktop
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    carousel.addEventListener('mousedown', (e) => {
+      isDown = true;
+      carousel.style.cursor = 'grabbing';
+      carousel.style.scrollBehavior = 'auto'; // Disable smooth snap while dragging
+      startX = e.pageX - carousel.offsetLeft;
+      scrollLeft = carousel.scrollLeft;
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+      isDown = false;
+      carousel.style.cursor = 'default';
+      carousel.style.scrollBehavior = 'smooth';
+    });
+
+    carousel.addEventListener('mouseup', () => {
+      isDown = false;
+      carousel.style.cursor = 'default';
+      carousel.style.scrollBehavior = 'smooth';
+      
+      // Snap to nearest item manually after drag
+      const scrollAmount = getScrollAmount();
+      const targetScroll = Math.round(carousel.scrollLeft / scrollAmount) * scrollAmount;
+      carousel.scrollTo({ left: targetScroll, behavior: 'smooth' });
+    });
+
+    carousel.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - carousel.offsetLeft;
+      const walk = (x - startX) * 2; // Scroll-fast multiplier
+      carousel.scrollLeft = scrollLeft - walk;
+    });
+  });
+</script>

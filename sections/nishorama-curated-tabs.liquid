@@ -1,0 +1,223 @@
+{% schema %}
+{
+  "name": "Nisho Curated Tabs",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Curated Fits for you"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Tab Label",
+          "default": "Tops"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "range",
+          "id": "product_limit",
+          "min": 4,
+          "max": 12,
+          "step": 1,
+          "label": "Product Limit",
+          "default": 8
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Nisho Curated Tabs",
+      "blocks": [
+        { "type": "tab", "settings": { "label": "Restocked" } },
+        { "type": "tab", "settings": { "label": "Bottoms" } },
+        { "type": "tab", "settings": { "label": "Tops" } },
+        { "type": "tab", "settings": { "label": "Dresses" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .nct-section-{{ section.id }} {
+    padding: 60px 40px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  @media screen and (max-width: 768px) {
+    .nct-section-{{ section.id }} {
+      padding: 40px 20px;
+    }
+  }
+
+  .nct-heading {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 500;
+    color: #121212;
+    margin: 0 0 20px 0;
+    font-family: 'SF Pro Display', -apple-system, sans-serif;
+  }
+
+  .nct-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nct-tabs::-webkit-scrollbar { display: none; }
+
+  .nct-tab-btn {
+    background: transparent;
+    border: none;
+    color: #121212;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 24px;
+    border-radius: 30px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+  }
+
+  .nct-tab-btn.active {
+    background: #2a1f1a; /* Dark brown / near black */
+    color: #ffffff;
+  }
+
+  .nct-content-area {
+    position: relative;
+    min-height: 400px;
+  }
+
+  .nct-panel {
+    display: none;
+    opacity: 0;
+    animation: fadePanelIn 0.5s forwards;
+  }
+
+  .nct-panel.active {
+    display: block;
+  }
+
+  @keyframes fadePanelIn {
+    to { opacity: 1; }
+  }
+
+  /* Carousel Styles */
+  .nct-carousel-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .nct-carousel {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 20px;
+    scroll-behavior: smooth;
+  }
+  .nct-carousel::-webkit-scrollbar { display: none; }
+
+  .nct-slide {
+    flex: 0 0 calc(25% - 11.25px);
+    scroll-snap-align: start;
+    min-width: 0;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .nct-slide { flex: 0 0 calc(33.333% - 10px); }
+  }
+
+  @media screen and (max-width: 768px) {
+    .nct-slide { flex: 0 0 calc(50% - 7.5px); }
+  }
+</style>
+
+<div class="nct-section-{{ section.id }}">
+  <h2 class="nct-heading">{{ section.settings.heading }}</h2>
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="nct-tabs">
+      {%- for block in section.blocks -%}
+        <button class="nct-tab-btn {% if forloop.first %}active{% endif %}" data-target="panel-{{ section.id }}-{{ forloop.index }}" {{ block.shopify_attributes }}>
+          {{ block.settings.label }}
+        </button>
+      {%- endfor -%}
+    </div>
+
+    <div class="nct-content-area">
+      {%- for block in section.blocks -%}
+        <div class="nct-panel {% if forloop.first %}active{% endif %}" id="panel-{{ section.id }}-{{ forloop.index }}">
+          <div class="nct-carousel-wrapper">
+            <div class="nct-carousel">
+              {%- if block.settings.collection != blank and block.settings.collection.products_count > 0 -%}
+                {%- for product in block.settings.collection.products limit: block.settings.product_limit -%}
+                  <div class="nct-slide">
+                    {% render 'nishorama-product-card', 
+                       product: product, 
+                       show_badge: true, 
+                       show_secondary_image: true,
+                       show_quick_add: true,
+                       emphasize_sale: false 
+                    %}
+                  </div>
+                {%- endfor -%}
+              {%- else -%}
+                {%- for i in (1..4) -%}
+                  <div class="nct-slide">
+                    <div style="background: #f4f4f4; border-radius: 12px; height: 350px; display: flex; align-items: center; justify-content: center;">Tab {{ forloop.parentloop.index }}</div>
+                  </div>
+                {%- endfor -%}
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const section = document.querySelector('.nct-section-{{ section.id }}');
+    if (!section) return;
+
+    const tabs = section.querySelectorAll('.nct-tab-btn');
+    const panels = section.querySelectorAll('.nct-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active from all tabs and panels
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+
+        // Add active to clicked tab and corresponding panel
+        this.classList.add('active');
+        const targetId = this.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+  });
+</script>

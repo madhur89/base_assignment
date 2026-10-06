@@ -1,0 +1,310 @@
+{% schema %}
+{
+  "name": "Nisho Footer",
+  "tag": "footer",
+  "class": "section-footer",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "texture_image",
+      "label": "Bottom Texture Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "illustration_image",
+      "label": "Bottom Right Illustration"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link_list",
+      "name": "Menu Column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Quick Links"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text Column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Contact"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Nishorama Pvt Ltd</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Nisho Footer"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .nf-section-{{ section.id }} {
+    position: relative;
+    padding: 80px 40px 40px;
+    background: #ffffff; /* White background as requested */
+    color: #121212;
+    overflow: hidden; /* To contain bottom textures */
+    border-top: 1px solid #eaeaea;
+  }
+
+  @media screen and (max-width: 768px) {
+    .nf-section-{{ section.id }} {
+      padding: 50px 20px 30px;
+    }
+  }
+
+  /* Top Columns */
+  .nf-top {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto 60px;
+    position: relative;
+    z-index: 2; /* Keep above illustration */
+  }
+
+  .nf-column {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .nf-heading {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nf-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .nf-menu li {
+    margin-bottom: 12px;
+  }
+
+  .nf-menu a {
+    color: #555;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+
+  .nf-menu a:hover {
+    color: #121212;
+  }
+
+  .nf-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* Accordion Icon (Mobile Only) */
+  .nf-accordion-icon {
+    display: none;
+    width: 14px;
+    height: 14px;
+    position: relative;
+  }
+  .nf-accordion-icon::before, .nf-accordion-icon::after {
+    content: '';
+    position: absolute;
+    background: currentColor;
+    transition: transform 0.3s ease;
+  }
+  .nf-accordion-icon::before { top: 6px; left: 0; width: 14px; height: 2px; }
+  .nf-accordion-icon::after { top: 0; left: 6px; width: 2px; height: 14px; }
+  
+  .nf-column.open .nf-accordion-icon::after {
+    transform: rotate(90deg);
+  }
+
+  @media screen and (max-width: 768px) {
+    .nf-top {
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+    .nf-column {
+      border-bottom: 1px solid #eaeaea;
+    }
+    .nf-heading {
+      padding: 20px 0;
+      margin: 0;
+      cursor: pointer;
+    }
+    .nf-accordion-icon {
+      display: block;
+    }
+    .nf-content {
+      display: none;
+      padding-bottom: 20px;
+    }
+  }
+
+  /* Bottom Area */
+  .nf-bottom {
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .nf-payments {
+    font-size: 13px;
+    color: #777;
+    font-weight: 500;
+  }
+
+  .nf-copyright {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 12px;
+    color: #999;
+  }
+
+  /* Illustrations & Textures */
+  .nf-texture-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+    object-position: bottom;
+    z-index: 1;
+    opacity: 0.15; /* Subtle stippled texture */
+    pointer-events: none;
+  }
+
+  .nf-illustration {
+    position: absolute;
+    bottom: 0;
+    right: 40px;
+    max-width: 350px;
+    width: 30vw;
+    height: auto;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    .nf-illustration {
+      right: -20px;
+      max-width: 200px;
+      width: 50vw;
+    }
+  }
+</style>
+
+<footer class="nf-section-{{ section.id }}">
+  <!-- Background Texture -->
+  {%- if section.settings.texture_image != blank -%}
+    {{ section.settings.texture_image | image_url: width: 2000 | image_tag: class: 'nf-texture-bg' }}
+  {%- else -%}
+    <!-- Fallback texture space -->
+  {%- endif -%}
+
+  <!-- Illustration -->
+  {%- if section.settings.illustration_image != blank -%}
+    {{ section.settings.illustration_image | image_url: width: 600 | image_tag: class: 'nf-illustration' }}
+  {%- else -%}
+    <!-- Fallback illustration space -->
+  {%- endif -%}
+
+  <div class="nf-top">
+    {%- for block in section.blocks -%}
+      <div class="nf-column" {{ block.shopify_attributes }}>
+        <h3 class="nf-heading">
+          {{ block.settings.heading }}
+          <span class="nf-accordion-icon"></span>
+        </h3>
+        
+        <div class="nf-content">
+          {%- if block.type == 'link_list' -%}
+            <ul class="nf-menu">
+              {%- for link in block.settings.menu.links -%}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {%- endfor -%}
+            </ul>
+          {%- elsif block.type == 'text' -%}
+            <div class="nf-text">{{ block.settings.text }}</div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <div class="nf-bottom">
+    <div class="nf-payments">
+      We accept all major payment methods.
+    </div>
+    
+    <div class="nf-copyright">
+      <span>Designed by Nishorama</span>
+      <span>&copy; {{ 'now' | date: "%Y" }} Nishorama</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth <= 768) {
+      const headings = document.querySelectorAll('.nf-heading');
+      headings.forEach(heading => {
+        heading.addEventListener('click', function() {
+          const column = this.parentElement;
+          const content = column.querySelector('.nf-content');
+          
+          if (column.classList.contains('open')) {
+            column.classList.remove('open');
+            content.style.display = 'none';
+          } else {
+            // Optional: Close others
+            // document.querySelectorAll('.nf-column').forEach(col => { col.classList.remove('open'); col.querySelector('.nf-content').style.display = 'none'; });
+            
+            column.classList.add('open');
+            content.style.display = 'block';
+          }
+        });
+      });
+    }
+  });
+</script>
