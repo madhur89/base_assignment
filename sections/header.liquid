@@ -149,12 +149,28 @@
   align-items: center;
 }
 
+.header-left {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .pill-nav {
   display: flex;
   gap: 10px;
   list-style: none;
   padding: 0;
   margin: 0;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.site-header.scrolled .pill-nav {
+  opacity: 0;
+  transform: translateX(-20px);
+  pointer-events: none;
+  position: absolute;
 }
 
 .pill-link {
@@ -313,18 +329,32 @@
   font-weight: 600;
 }
 
-/* Mobile & Drawer */
-.mobile-hamburger-btn {
-  display: none;
+/* Hamburger & Drawer */
+.hamburger-btn {
+  display: flex;
   cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  transform: translateX(-20px);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
 }
 
-.mobile-hamburger-icon {
+.site-header.scrolled .hamburger-btn {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.hamburger-icon {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.mobile-hamburger-icon span {
+.hamburger-icon span {
   width: 18px;
   height: 2px;
   background-color: currentColor;
@@ -332,11 +362,15 @@
 }
 
 @media screen and (max-width: 1024px) {
-  .pill-nav {
-    display: none;
+  .pill-nav, .site-header.scrolled .pill-nav {
+    display: none !important;
   }
-  .mobile-hamburger-btn {
-    display: flex;
+  .hamburger-btn, .site-header.scrolled .hamburger-btn {
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    transform: none !important;
+    pointer-events: auto !important;
   }
   .header-inner {
     padding: 15px 20px;
@@ -425,9 +459,9 @@ body.menu-open {
 <header id="site-header" class="site-header">
   <div class="header-inner">
     
-    <!-- Left: Navigation Pills -->
+    <!-- Left: Navigation Pills & Hamburger -->
     <nav class="header-left">
-      <ul class="pill-nav desktop-only">
+      <ul class="pill-nav">
         {% for link in section.settings.menu.links %}
           <li>
             <a href="{{ link.url }}" class="pill-link">
@@ -440,9 +474,9 @@ body.menu-open {
         {% endfor %}
       </ul>
       
-      <!-- Mobile Hamburger Pill -->
-      <div class="pill-link mobile-hamburger-btn" onclick="document.body.classList.toggle('menu-open')">
-        <div class="mobile-hamburger-icon">
+      <!-- Hamburger Pill (Morphs on scroll / Mobile) -->
+      <div class="pill-link hamburger-btn" onclick="document.body.classList.toggle('menu-open')">
+        <div class="hamburger-icon">
           <span></span><span></span><span></span>
         </div>
         Menu
