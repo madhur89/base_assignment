@@ -16,7 +16,7 @@
       "settings": {
         "logo_width": 140,
         "menu": "main-menu",
-        "show_announcement": true,
+        "show_announcement": false,
         "announcement_text": "10% OFF Automatically Applied on Orders ₹2,599+"
       }
     }
