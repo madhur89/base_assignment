@@ -98,12 +98,19 @@
   --sticky-text-color: {{ section.settings.sticky_text_color }};
 }
 
-/* Bulletproof Sticky Section */
+/* 
+  Take the section wrapper entirely out of document flow!
+  This allows the hero section below to shift up and sit underneath the header,
+  removing the white background gap. 
+*/
 #shopify-section-{{ section.id }} {
-  position: sticky;
+  position: absolute;
   top: 0;
-  z-index: 2000; /* Ensure it stays above everything */
+  left: 0;
+  width: 100%;
+  z-index: 2000;
   display: block;
+  pointer-events: none; /* Let clicks pass through the wrapper */
 }
 
 .announcement-bar {
@@ -115,17 +122,22 @@
   font-weight: 600;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  max-height: 40px;
-  overflow: hidden;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
 }
 
 /* Header Container */
 .site-header {
+  position: absolute;
+  top: {% if section.settings.show_announcement %}40px{% else %}0{% endif %};
+  left: 0;
   width: 100%;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  background-color: transparent; /* Island float over content */
-  pointer-events: none; /* Let clicks pass through empty spaces */
+  background-color: transparent; 
+  pointer-events: none;
 }
 
 /* Enable clicks ONLY on the inner elements */
@@ -141,13 +153,13 @@
 }
 
 /* SCROLLED STATE */
+.site-header.scrolled {
+  position: fixed;
+  top: 15px;
+}
+
 .site-header.scrolled .header-inner {
   padding: 10px 40px;
-}
-.site-header.scrolled ~ .announcement-bar {
-  max-height: 0;
-  opacity: 0;
-  padding: 0;
 }
 
 /* Navigation Pills (Left) */
@@ -558,24 +570,39 @@ body.menu-open {
     const header = document.getElementById('site-header');
     if (!header) return;
     
-    function handleScroll() {
-      // Use window or document element for scrolling
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      
-      if (scrollY > 50) {
-        if (!header.classList.contains('scrolled')) {
-          header.classList.add('scrolled');
-        }
-      } else {
-        if (header.classList.contains('scrolled')) {
-          header.classList.remove('scrolled');
-        }
+    let ticking = false;
+
+    function handleScroll(e) {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          let scrollY = window.scrollY;
+          
+          // Detect scroll position from any scrollable container (bypass theme wrappers)
+          if (e && e.target && e.target !== document && e.target !== window) {
+            if (e.target.scrollTop !== undefined) {
+              scrollY = e.target.scrollTop;
+            }
+          } else {
+            scrollY = window.scrollY || document.documentElement.scrollTop;
+          }
+          
+          if (scrollY > 50) {
+            if (!header.classList.contains('scrolled')) {
+              header.classList.add('scrolled');
+            }
+          } else {
+            if (header.classList.contains('scrolled')) {
+              header.classList.remove('scrolled');
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     }
 
-    // Attach to multiple possible scroll containers to ensure it fires in any theme
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    document.body.addEventListener('scroll', handleScroll, { passive: true });
+    // use capture: true to intercept the event from any scrollable child container!
+    window.addEventListener('scroll', handleScroll, true);
     
     // Initial check
     handleScroll();
