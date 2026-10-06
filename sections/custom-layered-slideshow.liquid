@@ -351,5 +351,33 @@
     }
     
     startAutoplay();
+
+    // --- Parallax Scroll Animation for Text ---
+    const textLayers = slider.querySelectorAll('.cgh-text-layer');
+    let ticking = false;
+
+    window.addEventListener('scroll', function(e) {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          let scrollY = window.scrollY;
+          
+          if (e && e.target && e.target !== document && e.target !== window) {
+            if (e.target.scrollTop !== undefined) scrollY = e.target.scrollTop;
+          } else {
+            scrollY = window.scrollY || document.documentElement.scrollTop;
+          }
+
+          if (scrollY < window.innerHeight * 1.5) {
+            textLayers.forEach(layer => {
+              // Move the text down slower than the scroll to create immense depth
+              // We maintain the -50% -50% translation for centering
+              layer.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.45}px))`;
+            });
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, true); // Use capture: true for Shopify themes that scroll inner containers
   });
 </script>
