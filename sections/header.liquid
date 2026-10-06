@@ -1,46 +1,79 @@
 {% schema %}
 {
-  "name": "Nishorama Header",
+  "name": "Island Header (Scrolled)",
   "class": "section-header",
   "settings": [
     {
-      "type": "color",
-      "id": "bg_color",
-      "label": "Background Color",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Text Color",
-      "default": "#121212"
+      "type": "header",
+      "content": "Logos"
     },
     {
       "type": "image_picker",
       "id": "logo",
-      "label": "Logo Image"
+      "label": "Main Logo (Initial State)"
     },
     {
       "type": "range",
       "id": "logo_width",
       "min": 50,
-      "max": 300,
+      "max": 400,
       "step": 10,
-      "default": 140,
+      "default": 180,
       "unit": "px",
-      "label": "Custom logo width"
+      "label": "Main logo width"
+    },
+    {
+      "type": "image_picker",
+      "id": "sticky_logo",
+      "label": "Sticky Logo/Image (Scrolled State)"
+    },
+    {
+      "type": "text",
+      "id": "sticky_text",
+      "label": "Sticky Text (if no sticky image)",
+      "default": "• YOU Know where to GET IT •"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
     },
     {
       "type": "link_list",
       "id": "menu",
       "default": "main-menu",
-      "label": "Main Menu"
+      "label": "Menu (Pills)"
     },
     {
-      "type": "checkbox",
-      "id": "enable_sticky",
-      "default": true,
-      "label": "Enable Sticky Header"
+      "type": "text",
+      "id": "highlight_link",
+      "label": "Highlight Link Title (adds red dot)",
+      "default": "Trending"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "pill_bg_color",
+      "label": "Pill Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "pill_text_color",
+      "label": "Pill Text Color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "sticky_text_color",
+      "label": "Sticky Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Announcement Bar"
     },
     {
       "type": "checkbox",
@@ -58,239 +91,262 @@
 }
 {% endschema %}
 
-{% if section.settings.show_announcement %}
-<div class="mob-notification-text" style="background-color: {{ section.settings.text_color }}; color: {{ section.settings.bg_color }}; text-align: center; padding: 10px 15px; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">
-  {{ section.settings.announcement_text }}
-</div>
-{% endif %}
-
-<header class="home-page header page-width {% if section.settings.enable_sticky %}sticky-header{% endif %}" style="background-color: {{ section.settings.bg_color }}; color: {{ section.settings.text_color }};">
-  <div class="cust-header-main">
-    
-    <!-- Left: Hamburger + Logo -->
-    <div class="cust-header-left">
-      <div class="cust-menu-bar" onclick="document.body.classList.toggle('menu-open')">
-        <div class="hamburger-menu">
-          <span></span>
-          <span></span>
-        </div>
-        <p class="cust-menu-text">Menu</p>
-      </div>
-      
-      <div class="cust-header-logo">
-        <a href="{{ routes.root_url }}">
-          {%- if section.settings.logo != blank -%}
-            {{ section.settings.logo | image_url: width: section.settings.logo_width | image_tag: 
-              class: 'header__heading-logo',
-              width: section.settings.logo_width,
-              alt: section.settings.logo.alt | default: shop.name
-            }}
-          {%- else -%}
-            <span class="h2" style="font-weight: 800; font-size: 24px; text-transform: uppercase; letter-spacing: 2px;">{{ shop.name }}</span>
-          {%- endif -%}
-        </a>
-      </div>
-    </div>
-
-    <!-- Middle: Navigation Links -->
-    <div class="cust-header-middle desktop-only">
-      <ul class="nav-links">
-        {%- for link in section.settings.menu.links -%}
-          <li>
-            <a href="{{ link.url }}">{{ link.title }}</a>
-          </li>
-        {%- endfor -%}
-      </ul>
-    </div>
-
-    <!-- Right: Action Icons -->
-    <div class="cust-header-right">
-      <a href="{{ routes.search_url }}" class="icon-link">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      </a>
-      {%- if shop.customer_accounts_enabled -%}
-        <a href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}" class="icon-link">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </a>
-      {%- endif -%}
-      <a href="{{ routes.cart_url }}" class="icon-link cart-link">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span class="cart-count">{{ cart.item_count }}</span>
-      </a>
-    </div>
-    
-  </div>
-</header>
-
-<!-- Mobile/Drawer Menu overlay -->
-<div class="mobile-drawer-overlay" onclick="document.body.classList.remove('menu-open')"></div>
-<div class="mobile-drawer" style="background-color: {{ section.settings.bg_color }}; color: {{ section.settings.text_color }};">
-  <div class="drawer-header">
-    <button class="drawer-close" onclick="document.body.classList.remove('menu-open')" style="color: inherit;">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <ul class="drawer-menu">
-    {%- for link in section.settings.menu.links -%}
-      <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-    {%- endfor -%}
-  </ul>
-</div>
-
 <style>
-/* CSS Variables & Defaults */
 :root {
-  --header-height: 80px;
-}
-.sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 900;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  --pill-bg: {{ section.settings.pill_bg_color }};
+  --pill-text: {{ section.settings.pill_text_color }};
+  --sticky-text-color: {{ section.settings.sticky_text_color }};
 }
 
-/* Base Layout */
-.home-page.header {
-  width: 100%;
-  display: block;
-  transition: background-color 0.3s ease;
+#shopify-section-{{ section.id }} {
+  position: relative;
+  z-index: 1000;
 }
-.cust-header-main {
+
+.announcement-bar {
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 8px 15px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Header Container */
+.site-header {
+  position: absolute; /* Overlays the hero section */
+  top: {% if section.settings.show_announcement %}30px{% else %}0{% endif %};
+  left: 0;
+  width: 100%;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.site-header.scrolled {
+  position: fixed;
+  top: 15px; /* Floating island effect when scrolled */
+}
+
+.header-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: var(--header-height);
-  padding: 0 40px;
-  max-width: 1600px;
+  padding: 20px 40px;
+  max-width: 1800px;
   margin: 0 auto;
+  transition: all 0.4s ease;
 }
 
-/* Left Section: Menu & Logo */
-.cust-header-left {
-  display: flex;
-  align-items: center;
-  gap: 30px;
+.site-header.scrolled .header-inner {
+  padding: 10px 40px;
+}
+
+/* Navigation Pills (Left) */
+.header-left {
   flex: 1;
-}
-.cust-menu-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  padding: 10px 0;
-  transition: opacity 0.2s ease;
-}
-.cust-menu-bar:hover {
-  opacity: 0.7;
-}
-.hamburger-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.hamburger-menu span {
-  display: block;
-  width: 26px;
-  height: 1.5px;
-  background-color: currentColor;
-  transition: all 0.3s ease;
-}
-.cust-menu-text {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-weight: 600;
-  margin: 0;
 }
 
-.cust-header-logo a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Middle Section: Links */
-.cust-header-middle {
-  flex: 2;
+.pill-nav {
   display: flex;
-  justify-content: center;
-}
-.nav-links {
+  gap: 10px;
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  gap: 36px;
 }
-.nav-links a {
+
+.pill-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
   text-decoration: none;
-  color: inherit;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  font-weight: 600;
-  position: relative;
-  padding-bottom: 6px;
-}
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 1.5px;
-  bottom: 0;
-  left: 0;
-  background-color: currentColor;
-  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-.nav-links a:hover::after {
-  width: 100%;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Right Section: Icons */
-.cust-header-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 28px;
-  flex: 1;
+.pill-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
-.icon-link {
-  color: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.icon-link:hover {
-  opacity: 0.6;
-  transform: scale(1.05);
-}
-.cart-link {
-  position: relative;
-}
-.cart-count {
-  position: absolute;
-  top: -8px;
-  right: -10px;
-  background-color: currentColor;
-  color: var(--bg_color, #fff);
-  font-size: 10px;
-  font-weight: 700;
+
+.red-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ff0000;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
+  display: inline-block;
+  margin-left: 2px;
+}
+
+/* Center Logos */
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 60px;
+}
+
+.main-logo, .sticky-logo {
+  position: absolute;
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-}
-/* Force contrasting color for cart text */
-.cart-count {
-  filter: invert(1);
+  text-decoration: none;
 }
 
-/* Mobile Drawer Menu */
+.main-logo {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.sticky-logo {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px) scale(0.95);
+}
+
+.sticky-text {
+  font-family: 'Comic Sans MS', 'Caveat', cursive, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--sticky-text-color);
+  letter-spacing: 2px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  white-space: nowrap;
+}
+
+/* Scroll state for logos */
+.site-header.scrolled .main-logo {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-15px) scale(0.95);
+}
+
+.site-header.scrolled .sticky-logo {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Icons (Right) */
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-circle {
+  width: 42px;
+  height: 42px;
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.icon-circle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.icon-brand {
+  border: 2px solid transparent;
+  background-image: linear-gradient(var(--pill-bg), var(--pill-bg)), linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+}
+.icon-brand-text {
+  font-weight: bold;
+  font-size: 16px;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cart-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cart-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.cart-divider {
+  color: #d0d0d0;
+  font-weight: 300;
+  font-size: 14px;
+}
+
+.cart-count {
+  font-weight: 600;
+}
+
+/* Mobile & Drawer */
+.mobile-hamburger-btn {
+  display: none;
+  cursor: pointer;
+}
+
+.mobile-hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mobile-hamburger-icon span {
+  width: 18px;
+  height: 2px;
+  background-color: currentColor;
+  display: block;
+}
+
+@media screen and (max-width: 1024px) {
+  .pill-nav {
+    display: none;
+  }
+  .mobile-hamburger-btn {
+    display: flex;
+  }
+  .header-inner {
+    padding: 15px 20px;
+  }
+  .sticky-text {
+    font-size: 18px;
+  }
+}
+
+/* Mobile Drawer Overlay */
 .mobile-drawer-overlay {
   position: fixed;
   top: 0;
@@ -317,9 +373,11 @@ body.menu-open .mobile-drawer-overlay {
   max-width: 85%;
   height: 100vh;
   z-index: 2000;
+  background-color: var(--pill-bg);
+  color: var(--pill-text);
   transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: 5px 0 30px rgba(0,0,0,0.15);
-  padding: 40px 40px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
 }
@@ -340,10 +398,7 @@ body.menu-open {
   border: none;
   cursor: pointer;
   padding: 5px;
-  transition: transform 0.3s ease;
-}
-.drawer-close:hover {
-  transform: rotate(90deg);
+  color: inherit;
 }
 .drawer-menu {
   list-style: none;
@@ -351,46 +406,127 @@ body.menu-open {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 .drawer-menu a {
   text-decoration: none;
   color: inherit;
-  font-size: 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  display: inline-block;
-  transition: transform 0.3s ease;
-}
-.drawer-menu a:hover {
-  transform: translateX(10px);
-}
-
-/* Responsive */
-@media screen and (max-width: 990px) {
-  .desktop-only {
-    display: none;
-  }
-  .cust-header-main {
-    padding: 0 20px;
-  }
-}
-@media screen and (max-width: 768px) {
-  .cust-menu-text {
-    display: none;
-  }
-  .cust-header-main {
-    height: 65px;
-  }
-  .cust-header-left {
-    gap: 15px;
-  }
-  .cust-header-right {
-    gap: 20px;
-  }
-  .mobile-drawer {
-    padding: 30px 25px;
-  }
+  font-size: 18px;
+  font-weight: 500;
 }
 </style>
+
+{% if section.settings.show_announcement %}
+<div class="announcement-bar" id="announcement-bar">
+  {{ section.settings.announcement_text }}
+</div>
+{% endif %}
+
+<header id="site-header" class="site-header">
+  <div class="header-inner">
+    
+    <!-- Left: Navigation Pills -->
+    <nav class="header-left">
+      <ul class="pill-nav desktop-only">
+        {% for link in section.settings.menu.links %}
+          <li>
+            <a href="{{ link.url }}" class="pill-link">
+              {{ link.title }}
+              {% if link.title == section.settings.highlight_link %}
+                <span class="red-dot"></span>
+              {% endif %}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      
+      <!-- Mobile Hamburger Pill -->
+      <div class="pill-link mobile-hamburger-btn" onclick="document.body.classList.toggle('menu-open')">
+        <div class="mobile-hamburger-icon">
+          <span></span><span></span><span></span>
+        </div>
+        Menu
+      </div>
+    </nav>
+    
+    <!-- Center: Morphing Logos -->
+    <div class="header-center">
+      <a href="{{ routes.root_url }}" class="main-logo">
+        {% if section.settings.logo != blank %}
+          {{ section.settings.logo | image_url: width: section.settings.logo_width | image_tag: width: section.settings.logo_width }}
+        {% else %}
+          <h2 style="margin: 0; font-weight: 800; font-size: 28px; color: #fff;">{{ shop.name }}</h2>
+        {% endif %}
+      </a>
+      
+      <a href="{{ routes.root_url }}" class="sticky-logo">
+        {% if section.settings.sticky_logo != blank %}
+          {{ section.settings.sticky_logo | image_url: width: 300 | image_tag: class: 'sticky-logo-img' }}
+        {% else %}
+          <span class="sticky-text">{{ section.settings.sticky_text }}</span>
+        {% endif %}
+      </a>
+    </div>
+
+    <!-- Right: Icons & Cart -->
+    <div class="header-right">
+      <a href="#" class="icon-circle icon-brand">
+         <span class="icon-brand-text">नी</span>
+      </a>
+      
+      <a href="#" class="icon-circle desktop-only">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+      </a>
+
+      <a href="{{ routes.search_url }}" class="icon-circle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </a>
+
+      {% if shop.customer_accounts_enabled %}
+        <a href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}" class="icon-circle desktop-only">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+      {% endif %}
+
+      <a href="{{ routes.cart_url }}" class="cart-pill">
+        <span>Cart</span>
+        <span class="cart-divider">|</span>
+        <span class="cart-count">{{ cart.item_count }}</span>
+      </a>
+    </div>
+    
+  </div>
+</header>
+
+<!-- Mobile Drawer -->
+<div class="mobile-drawer-overlay" onclick="document.body.classList.remove('menu-open')"></div>
+<div class="mobile-drawer">
+  <div class="drawer-header">
+    <button class="drawer-close" onclick="document.body.classList.remove('menu-open')">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <ul class="drawer-menu">
+    {% for link in section.settings.menu.links %}
+      <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const header = document.getElementById('site-header');
+  
+  function handleScroll() {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll);
+  // Trigger on load in case the page is already scrolled
+  handleScroll();
+});
+</script>
