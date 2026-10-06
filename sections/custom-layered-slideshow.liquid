@@ -23,12 +23,39 @@
         {
           "type": "image_picker",
           "id": "image_desktop",
-          "label": "Desktop Image"
+          "label": "Background Image"
         },
         {
           "type": "image_picker",
           "id": "image_mobile",
-          "label": "Mobile Image"
+          "label": "Mobile Background Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_foreground",
+          "label": "Optional: Foreground Model (Transparent PNG)"
+        },
+        {
+          "type": "text",
+          "id": "big_text",
+          "label": "Massive Text",
+          "default": "NISHORAMA"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "min": 50,
+          "max": 400,
+          "step": 10,
+          "unit": "px",
+          "label": "Text Size",
+          "default": 250
         },
         {
           "type": "text",
@@ -56,20 +83,33 @@
 {% endschema %}
 
 <style>
+  /* 
+    Bulletproof Full Width 
+    Breaks out of any theme container padding 
+  */
+  #shopify-section-{{ section.id }} {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+
   .cust-gallery-hero {
     position: relative;
-    width: 100%;
+    width: 100vw;
     height: 100vh; /* Full screen height to match Nishorama */
     overflow: hidden;
-    background-color: #000;
+    background-color: #d8c9bd;
   }
   
   .cgh-slide {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.8s ease, visibility 0.8s;
@@ -81,29 +121,91 @@
     z-index: 2;
   }
 
-  .cgh-slide img {
+  /* 1. Background Layer */
+  .cgh-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    z-index: 1;
     /* Zoom effect mimicking the animation */
     transform: scale(1.06);
     transition: transform 6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
-  
-  .cgh-slide.active img {
+  .cgh-slide.active .cgh-bg {
     transform: scale(1);
   }
-
-  .cgh-slide img.mobile {
+  .cgh-bg.mobile {
     display: none;
   }
   
+  /* 2. Massive Text Layer */
+  .cgh-text-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cgh-text-inner {
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 1.5s ease, transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition-delay: 0.2s;
+  }
+
+  .cgh-slide.active .cgh-text-inner {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .cgh-text-layer h2 {
+    font-size: var(--text-size);
+    color: var(--text-color);
+    font-weight: 900;
+    margin: 0;
+    line-height: 0.9;
+    letter-spacing: 2px;
+    font-family: 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+
+  /* 3. Foreground Model Layer (Optional) */
+  .cgh-fg {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 40px);
+    opacity: 0;
+    height: 90%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    z-index: 3;
+    pointer-events: none;
+    transition: opacity 1s ease, transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition-delay: 0.4s;
+  }
+  .cgh-slide.active .cgh-fg {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* Responsive Settings */
   @media screen and (max-width: 768px) {
-    .cgh-slide img.desktop {
-      display: none;
-    }
-    .cgh-slide img.mobile {
-      display: block;
+    .cgh-bg.desktop { display: none; }
+    .cgh-bg.mobile { display: block; }
+    .cgh-text-layer h2 {
+      font-size: calc(var(--text-size) * 0.4);
     }
   }
 
@@ -122,7 +224,7 @@
     font-weight: 600;
     letter-spacing: 1px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    z-index: 3;
+    z-index: 4;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   
@@ -162,21 +264,34 @@
     {% for block in section.blocks %}
       <div class="cgh-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
         
-        <!-- Desktop Image -->
+        <!-- 1. Background Image -->
         {% if block.settings.image_desktop != blank %}
-          {{ block.settings.image_desktop | image_url: width: 2000 | image_tag: class: 'desktop', preload: true }}
+          {{ block.settings.image_desktop | image_url: width: 2000 | image_tag: class: 'cgh-bg desktop', preload: true }}
         {% else %}
-          <div class="desktop" style="width:100%; height:100%; background:#d8c9bd;"></div>
+          <div class="cgh-bg desktop" style="width:100%; height:100%; background:#d8c9bd;"></div>
         {% endif %}
         
-        <!-- Mobile Image -->
         {% if block.settings.image_mobile != blank %}
-          {{ block.settings.image_mobile | image_url: width: 1000 | image_tag: class: 'mobile', preload: true }}
+          {{ block.settings.image_mobile | image_url: width: 1000 | image_tag: class: 'cgh-bg mobile', preload: true }}
         {% else %}
-          <div class="mobile" style="width:100%; height:100%; background:#a89f91;"></div>
+          <div class="cgh-bg mobile" style="width:100%; height:100%; background:#a89f91;"></div>
         {% endif %}
 
-        <!-- Pill Button -->
+        <!-- 2. Massive Animated HTML Text -->
+        {% if block.settings.big_text != blank %}
+          <div class="cgh-text-layer" style="--text-color: {{ block.settings.text_color }}; --text-size: {{ block.settings.text_size }}px;">
+            <div class="cgh-text-inner">
+              <h2>{{ block.settings.big_text }}</h2>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- 3. Foreground Model Image (Optional) -->
+        {% if block.settings.image_foreground != blank %}
+          {{ block.settings.image_foreground | image_url: width: 1200 | image_tag: class: 'cgh-fg' }}
+        {% endif %}
+
+        <!-- 4. Pill Button -->
         {% if block.settings.btn_text != blank %}
           <a href="{{ block.settings.btn_link | default: '#' }}" class="gallery-banner-link">{{ block.settings.btn_text }}</a>
         {% endif %}
