@@ -1,0 +1,397 @@
+{% schema %}
+{
+  "name": "Layered Parallax Hero",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "section_height",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "label": "Section Height",
+      "default": 100
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "min": 50,
+      "max": 350,
+      "step": 5,
+      "unit": "px",
+      "label": "Text Size (Desktop)",
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "sec",
+      "label": "Autoplay Speed",
+      "default": 6
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "bg_image",
+          "label": "Background Image (The Room/Environment)"
+        },
+        {
+          "type": "image_picker",
+          "id": "fg_image",
+          "label": "Foreground Image (Model with Transparent BG)"
+        },
+        {
+          "type": "text",
+          "id": "big_text",
+          "label": "Big Text",
+          "default": "NISHORAMA"
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "label": "Button Text",
+          "default": "Shop All"
+        },
+        {
+          "type": "url",
+          "id": "btn_link",
+          "label": "Button Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Layered Parallax Hero",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  .layered-slider {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.section_height }}vh;
+    overflow: hidden;
+    background-color: #000;
+  }
+  
+  .lh-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 1.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .lh-slide.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+  }
+
+  /* Background Layer */
+  .lh-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    transform: scale(1.08);
+    transition: transform 7s ease-out; /* Super slow pan out effect */
+  }
+  .lh-slide.active .lh-bg {
+    transform: scale(1);
+  }
+
+  /* Big Text Layer (Behind Model) */
+  .lh-text-layer {
+    position: absolute;
+    z-index: 2;
+    text-align: center;
+    width: 100%;
+    will-change: transform;
+  }
+  
+  .lh-text-inner {
+    transform: scale(0.85);
+    opacity: 0;
+    transition: all 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition-delay: 0.1s;
+  }
+  .lh-slide.active .lh-text-inner {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .lh-text {
+    font-size: {{ section.settings.text_size_desktop }}px;
+    font-weight: 900;
+    color: {{ section.settings.text_color }};
+    line-height: 0.9;
+    margin: 0;
+    letter-spacing: 2px;
+    font-family: 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+
+  /* Foreground Layer (The Model) */
+  .lh-fg {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 60px);
+    opacity: 0;
+    height: 95%; /* Make it huge so it covers the text well */
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    z-index: 3;
+    pointer-events: none;
+    transition: all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition-delay: 0.3s; /* Delay so text appears slightly first */
+  }
+  .lh-slide.active .lh-fg {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  /* Button Layer */
+  .lh-content {
+    position: absolute;
+    bottom: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    opacity: 0;
+    transition: opacity 1s ease, transform 1s ease;
+    transition-delay: 0.7s;
+  }
+  .lh-slide.active .lh-content {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .lh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    color: #000000;
+    text-decoration: none;
+    padding: 14px 42px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .lh-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  /* Pagination Dots */
+  .lh-pagination {
+    position: absolute;
+    bottom: 4%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .lh-dot {
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .lh-dot.active {
+    background: #ffffff;
+    transform: scale(1.5);
+  }
+
+  /* Responsive Design */
+  @media screen and (max-width: 1200px) {
+    .lh-text {
+      font-size: calc({{ section.settings.text_size_desktop }}px * 0.8);
+    }
+  }
+  @media screen and (max-width: 900px) {
+    .lh-text {
+      font-size: calc({{ section.settings.text_size_desktop }}px * 0.6);
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .lh-text {
+      font-size: calc({{ section.settings.text_size_desktop }}px * 0.35);
+    }
+    .lh-fg {
+      height: 75%;
+    }
+    .lh-content {
+      bottom: 15%;
+    }
+    .lh-btn {
+      padding: 12px 32px;
+    }
+  }
+</style>
+
+<div class="layered-slider" id="layered-slider-{{ section.id }}" data-autoplay="{{ section.settings.autoplay_speed }}">
+  
+  {% for block in section.blocks %}
+  <div class="lh-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+    
+    <!-- 1. Background Image -->
+    {% if block.settings.bg_image != blank %}
+      {{ block.settings.bg_image | image_url: width: 2000 | image_tag: class: 'lh-bg' }}
+    {% else %}
+      <div class="lh-bg" style="background-color: #a89f91;"></div>
+    {% endif %}
+
+    <!-- 2. Big Text (Layered behind model) -->
+    <div class="lh-text-layer lh-parallax-text">
+      <div class="lh-text-inner">
+        <h1 class="lh-text">{{ block.settings.big_text }}</h1>
+      </div>
+    </div>
+
+    <!-- 3. Foreground Image (Transparent Model) -->
+    {% if block.settings.fg_image != blank %}
+      {{ block.settings.fg_image | image_url: width: 1200 | image_tag: class: 'lh-fg' }}
+    {% endif %}
+
+    <!-- 4. Button -->
+    <div class="lh-content">
+      {% if block.settings.btn_text != blank %}
+        <a href="{{ block.settings.btn_link | default: '#' }}" class="lh-btn">
+          {{ block.settings.btn_text }}
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+
+  <!-- Pagination -->
+  {% if section.blocks.size > 1 %}
+  <div class="lh-pagination">
+    {% for block in section.blocks %}
+      <div class="lh-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}"></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const slider = document.getElementById('layered-slider-{{ section.id }}');
+    if (!slider) return;
+
+    // --- Slider Logic ---
+    const slides = slider.querySelectorAll('.lh-slide');
+    const dots = slider.querySelectorAll('.lh-dot');
+    let currentIndex = 0;
+    let autoplayInterval;
+    const speed = parseInt(slider.getAttribute('data-autoplay')) * 1000;
+
+    function goToSlide(index) {
+      slides[currentIndex].classList.remove('active');
+      if (dots[currentIndex]) dots[currentIndex].classList.remove('active');
+      
+      currentIndex = index;
+      
+      slides[currentIndex].classList.add('active');
+      if (dots[currentIndex]) dots[currentIndex].classList.add('active');
+    }
+
+    function nextSlide() {
+      let next = currentIndex + 1;
+      if (next >= slides.length) next = 0;
+      goToSlide(next);
+    }
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', function() {
+        clearInterval(autoplayInterval);
+        goToSlide(parseInt(this.getAttribute('data-index')));
+        startAutoplay();
+      });
+    });
+
+    function startAutoplay() {
+      if (slides.length > 1) {
+        autoplayInterval = setInterval(nextSlide, speed);
+      }
+    }
+    
+    startAutoplay();
+
+    // --- Scroll Parallax Logic ---
+    const parallaxLayers = slider.querySelectorAll('.lh-parallax-text');
+    let ticking = false;
+
+    window.addEventListener('scroll', function(e) {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          let scrollY = window.scrollY;
+          
+          // Fallback for custom scrolling themes
+          if (e && e.target && e.target !== document && e.target !== window) {
+            if (e.target.scrollTop !== undefined) scrollY = e.target.scrollTop;
+          } else {
+            scrollY = window.scrollY || document.documentElement.scrollTop;
+          }
+
+          // Only compute parallax if we are somewhat near the top of the page
+          if (scrollY < window.innerHeight * 1.5) {
+            parallaxLayers.forEach(layer => {
+              // Move the text down slower than the scroll to create immense depth
+              layer.style.transform = `translateY(${scrollY * 0.4}px)`;
+            });
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, true);
+  });
+</script>
