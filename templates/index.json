@@ -101,6 +101,7 @@
         "slide_qpVRUE": {
           "type": "slide",
           "settings": {
+            "image_desktop": "shopify://shop_images/AABH_1.webp",
             "btn_text": "NISHOTSAV2",
             "btn_link": ""
           }
