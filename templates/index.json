@@ -117,10 +117,58 @@
       "settings": {
         "autoplay_speed": 4
       }
+    },
+    "nishorama_curated_tabs_FiBG6U": {
+      "type": "nishorama-curated-tabs",
+      "blocks": {
+        "tab_KQpbfQ": {
+          "type": "tab",
+          "settings": {
+            "label": "Restocked",
+            "collection": "automated-collection",
+            "product_limit": 8
+          }
+        },
+        "tab_DFn48b": {
+          "type": "tab",
+          "settings": {
+            "label": "Bottoms",
+            "collection": "hydrogen",
+            "product_limit": 8
+          }
+        },
+        "tab_n6dVFB": {
+          "type": "tab",
+          "settings": {
+            "label": "Tops",
+            "collection": "automated-collection",
+            "product_limit": 8
+          }
+        },
+        "tab_xVki38": {
+          "type": "tab",
+          "settings": {
+            "label": "Dresses",
+            "collection": "",
+            "product_limit": 8
+          }
+        }
+      },
+      "block_order": [
+        "tab_KQpbfQ",
+        "tab_DFn48b",
+        "tab_n6dVFB",
+        "tab_xVki38"
+      ],
+      "name": "Nisho Curated Tabs",
+      "settings": {
+        "heading": "Curated Fits for you"
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
-    "custom_layered_slideshow_xfyxxX"
+    "custom_layered_slideshow_xfyxxX",
+    "nishorama_curated_tabs_FiBG6U"
   ]
 }
