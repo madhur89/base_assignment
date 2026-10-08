@@ -14,8 +14,13 @@
     "header_section": {
       "type": "header",
       "settings": {
-        "logo_width": 140,
+        "logo_width": 50,
+        "sticky_text": "• YOU Know where to GET IT •",
         "menu": "main-menu",
+        "highlight_link": "Trending",
+        "pill_bg_color": "#ffffff",
+        "pill_text_color": "#121212",
+        "sticky_text_color": "#ffffff",
         "show_announcement": false,
         "announcement_text": "10% OFF Automatically Applied on Orders ₹2,599+"
       }
