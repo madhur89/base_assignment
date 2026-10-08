@@ -102,6 +102,9 @@
           "type": "slide",
           "settings": {
             "image_desktop": "shopify://shop_images/AABH_1.webp",
+            "big_text": "NISHORAMA",
+            "text_color": "#ffffff",
+            "text_size": 170,
             "btn_text": "NISHOTSAV2",
             "btn_link": ""
           }
